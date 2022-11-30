@@ -16,6 +16,7 @@ from contextlib import contextmanager, nullcontext
 from ldm.util import instantiate_from_config
 from ldm.models.diffusion.ddim import DDIMSampler
 from ldm.models.diffusion.plms import PLMSSampler
+from ldm.models.diffusion.dpm_solver import DPMSolverSampler
 
 from transformers import AutoFeatureExtractor
 from prompt_parser import PromptGuidanceModelWrapper
@@ -106,6 +107,11 @@ def main():
         "--plms",
         action='store_true',
         help="use plms sampling",
+    )
+    parser.add_argument(
+        "--dpm_solver",
+        action='store_true',
+        help="use dpm_solver sampling",
     )
     parser.add_argument(
         "--laion400m",
@@ -222,7 +228,9 @@ def main():
     model = model.to(device)
     model = PromptGuidanceModelWrapper(model)
 
-    if opt.plms:
+    if opt.dpm_solver:
+        sampler = DPMSolverSampler(model)
+    elif opt.plms:
         sampler = PLMSSampler(model)
     else:
         sampler = DDIMSampler(model)
